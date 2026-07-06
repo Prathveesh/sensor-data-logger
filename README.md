@@ -2,306 +2,206 @@
 
 A production-style embedded firmware project built from scratch using **Embedded C**, **FreeRTOS**, and the **STM32F3 Discovery (STM32F303VCT6)** development board.
 
-This project is designed as a learning journey through professional embedded software development rather than a simple coding exercise. Every design decision, module, and implementation follows software engineering practices commonly used in automotive and industrial firmware teams.
+This repository documents the complete firmware development process—from requirements analysis and software architecture to implementation, testing, debugging, and documentation—following practices commonly used in professional embedded software teams.
 
 ---
 
 # Project Overview
 
-A **Sensor Data Logger** is an embedded system that periodically collects data from one or more sensors, processes it if necessary, stores it, and makes it available for monitoring or analysis.
+A **Sensor Data Logger** is an embedded system that periodically acquires data from one or more sensors, processes the collected information, and makes it available for monitoring or analysis.
 
-At its core, every data logger answers four questions:
+For the initial release (**v0.1.0**), this project focuses on:
 
-1. What should I measure?
-2. When should I measure it?
-3. Where should I store it?
-4. How should the data be retrieved?
+* Periodic sensor acquisition
+* UART-based data logging
+* UART Command Line Interface (CLI)
+* FreeRTOS task-based firmware
+* Modular firmware architecture
+* Register-level peripheral programming
 
-This project will implement a modular, scalable, and reusable sensor data logger using **FreeRTOS**, with an architecture suitable for real-world embedded products.
+The project is intentionally developed incrementally, with every stage documented and committed to Git.
 
 ---
 
-# Objectives
+# Project Objectives
 
-The primary goals of this project are to:
+The primary objectives of this project are to:
 
-* Design firmware using a layered software architecture.
-* Develop reusable register-level drivers without relying on STM32CubeMX-generated application code.
-* Learn FreeRTOS task scheduling and inter-task communication.
-* Implement modular firmware components that are easy to extend and maintain.
-* Build the project using the GNU ARM Toolchain and GNU Make.
-* Practice professional Git workflows and repository organization.
-* Produce documentation that reflects industry standards.
+* Learn professional embedded firmware development.
+* Design a modular and maintainable firmware architecture.
+* Develop reusable register-level peripheral drivers.
+* Learn FreeRTOS task design and inter-task communication.
+* Build the project using GNU Make and the GNU ARM Toolchain.
+* Follow professional Git workflows.
+* Produce engineering documentation alongside the implementation.
 
 ---
 
 # Target Hardware
 
-| Component            | Details           |
-| -------------------- | ----------------- |
-| Development Board    | STM32F3 Discovery |
-| MCU                  | STM32F303VCT6     |
-| Core                 | ARM Cortex-M4F    |
-| Programming Language | Embedded C (C99)  |
-| RTOS                 | FreeRTOS          |
-| Compiler             | arm-none-eabi-gcc |
-| Build System         | GNU Make          |
-| IDE                  | VS Code           |
-| Debugger             | ST-Link GDB       |
-| Version Control      | Git & GitHub      |
+| Component            | Details            |
+| -------------------- | ------------------ |
+| Development Board    | STM32F3 Discovery  |
+| MCU                  | STM32F303VCT6      |
+| Core                 | ARM Cortex-M4F     |
+| Programming Language | Embedded C (C99)   |
+| RTOS                 | FreeRTOS           |
+| Compiler             | arm-none-eabi-gcc  |
+| Build System         | GNU Make           |
+| IDE                  | Visual Studio Code |
+| Debugger             | ST-Link GDB        |
+| Version Control      | Git & GitHub       |
 
 ---
 
-# Why Build a Sensor Data Logger?
+# Current Software Architecture
 
-Sensor data logging is widely used across multiple industries.
-
-## Automotive
-
-* Engine temperature monitoring
-* Battery voltage logging
-* Oil pressure monitoring
-* Vehicle diagnostics
-* CAN bus data recording
-
-## Industrial Automation
-
-* Motor monitoring
-* Pump diagnostics
-* Vibration analysis
-* Pressure and temperature logging
-* Predictive maintenance
-
-## Medical Devices
-
-* Heart rate monitoring
-* Blood pressure logging
-* Temperature measurement
-* Oxygen saturation recording
-
-## Agriculture
-
-* Soil moisture monitoring
-* Temperature logging
-* Humidity measurement
-* Environmental data collection
-
-## Aerospace
-
-* Flight telemetry
-* Accelerometer logging
-* Pressure monitoring
-* Sensor diagnostics
-
-## IoT Systems
-
-* Smart home sensors
-* Air quality monitoring
-* Power consumption logging
-* Environmental monitoring
-
----
-
-# High-Level System Overview
+The firmware follows a lightweight three-layer architecture.
 
 ```text
-               STM32F303
-
-        +----------------------+
-        |  FreeRTOS Scheduler  |
-        +----------+-----------+
-                   |
-      +------------+-------------+
-      |            |             |
-      v            v             v
- Sensor Task   Logger Task   CLI Task
-      |            |             |
-      +------------+-------------+
-                   |
-                   v
-             UART / Storage
++------------------------------------------------------+
+|                  Application Layer                   |
+|------------------------------------------------------|
+| main                                                 |
+| Sensor Manager                                       |
+| Logger                                               |
+| CLI                                                  |
++------------------------------------------------------+
+|              Hardware Interface Layer                |
+|------------------------------------------------------|
+| UART Driver                                          |
++------------------------------------------------------+
+|             CMSIS / STM32 Hardware Layer             |
+|------------------------------------------------------|
+| CMSIS                                                |
+| Startup Files                                        |
+| Linker Script                                        |
+| STM32F303 Registers                                  |
++------------------------------------------------------+
 ```
 
-Initially, logged sensor data will be transmitted over UART for easy observation. The architecture will later support additional storage backends such as SD cards or external flash memory.
+### Design Philosophy
+
+The architecture is intentionally lightweight.
+
+Every software module exists because a functional requirement justifies it.
+
+No abstraction layer or driver is introduced until it is required by the project.
 
 ---
 
-# Why FreeRTOS?
+# Repository Structure
 
-As embedded applications grow, managing multiple independent activities in a single `while(1)` loop becomes increasingly difficult.
-
-FreeRTOS enables the application to be divided into independent tasks such as:
-
-* Sensor acquisition
-* Data logging
-* Command-line interface
-* Future communication services
-
-This results in cleaner, more maintainable, and scalable firmware.
-
----
-
-# Learning Outcomes
-
-By completing this project, you will gain practical experience with:
-
-## Firmware Architecture
-
-* Layered architecture
-* Module boundaries
-* API design
-* Dependency management
-
-## Embedded C
-
-* Modular programming
-* Header/source separation
-* Static functions
-* Memory ownership
-* Reusable interfaces
-
-## FreeRTOS
-
-* Task creation
-* Scheduling
-* Queues
-* Mutexes
-* Semaphores
-* Event groups
-* Software timers
-* ISR interaction
-
-## Driver Development
-
-* Register-level programming
-* Manual peripheral drivers
-* Hardware abstraction
-* Portable driver design
-
-## Build Systems
-
-* GNU Make
-* Cross-compilation
-* Linker scripts
-* Compiler flags
-* Startup files
-
-## Debugging
-
-* ST-Link
-* GDB
-* OpenOCD
-* HardFault analysis
-* Stack overflow detection
-
-## Version Control
-
-* Professional Git workflow
-* Feature branches
-* Pull requests
-* Semantic versioning
-* Tagged releases
-
-## Documentation
-
-* README
-* Architecture documentation
-* Build guides
-* Developer documentation
-* API documentation
+```text
+freertos-sensor-data-logger/
+│
+├── apps/
+│   ├── main.c
+│   ├── logger/
+│   ├── sensor_manager/
+│   └── cli/
+│
+├── drivers/
+│   └── uart/
+│
+├── freertos/
+│
+├── config/
+│
+├── docs/
+│   ├── Requirements.md
+│   └── Architecture.md
+│
+├── make/
+│
+├── README.md
+├── LICENSE
+└── .gitignore
+```
 
 ---
 
-# Skills Demonstrated
+# Current Features (v0.1.0)
 
-This project showcases practical firmware engineering skills including:
+The first release targets the following functionality:
 
-* Embedded firmware architecture
-* Register-level driver development
-* FreeRTOS-based multitasking
-* Embedded C best practices
-* Hardware abstraction
-* Concurrent software design
-* GNU Make build system
-* Professional Git workflow
-* Firmware debugging
-* Technical documentation
-
----
-
-# Common Beginner Misconceptions
-
-| Misconception                                  | Reality                                                                        |
-| ---------------------------------------------- | ------------------------------------------------------------------------------ |
-| FreeRTOS is the entire architecture.           | FreeRTOS is only one layer of the software stack.                              |
-| Drivers should know about the application.     | Drivers should remain reusable and independent.                                |
-| Global variables solve communication problems. | Proper ownership and encapsulation improve maintainability.                    |
-| Code first, design later.                      | Production firmware begins with requirements and architecture.                 |
-| If it works, it is complete.                   | Production firmware also requires testing, documentation, and maintainability. |
-
----
-
-# Engineering Principles
-
-This project emphasizes production-quality firmware development by focusing on:
-
-* Maintainability
-* Scalability
-* Modularity
-* Deterministic behavior
-* Resource efficiency
-* Portability
-* Testability
-* Documentation
-
----
-
-# Repository Roadmap
-
-This project will be developed incrementally through the following stages:
-
-* Project Introduction
-* Requirements Analysis
-* System Architecture
-* Software Design
-* FreeRTOS Task Design
-* Repository Organization
-* Build System
-* Git Workflow
-* Incremental Implementation
-* Testing
-* Debugging
-* Documentation
-* GitHub Portfolio Optimization
-* Interview Preparation
-* Future Enhancements
+* Hardware initialization
+* FreeRTOS initialization
+* Periodic sensor acquisition
+* UART-based logging
+* UART Command Line Interface
+* Runtime error reporting
+* Modular firmware organization
 
 ---
 
 # Planned Features
 
-* Register-level STM32 peripheral drivers
-* FreeRTOS-based multitasking
-* Modular sensor framework
-* UART logging
-* Command Line Interface (CLI)
-* Configurable logging intervals
-* Scalable storage abstraction
-* Future SD card support
-* Future DMA integration
-* Future CAN support
-* Future USB CDC support
+The following capabilities are planned for future releases:
+
+* Additional peripheral drivers
+* I²C sensor support
+* GPIO abstraction
+* SD Card logging
+* External Flash logging
+* DMA-based UART
+* USB CDC
+* CAN communication
+* Configuration persistence
+* LittleFS integration
+* Low-power support
+* Bootloader integration
+* CI/CD
+* Unit testing
+
+---
+
+# Documentation
+
+Project documentation is maintained alongside the firmware implementation.
+
+| Document          | Description                                     |
+| ----------------- | ----------------------------------------------- |
+| `Requirements.md` | Functional requirements for the current release |
+| `Architecture.md` | Firmware architecture and module organization   |
+
+Additional documents will be added as development progresses.
+
+---
+
+# Development Principles
+
+This project follows a few simple engineering principles throughout its development:
+
+* Requirements drive the architecture.
+* Architecture drives the implementation.
+* Every module has a single responsibility.
+* Hardware access is isolated from application logic.
+* No source file or folder exists without a clear purpose.
+* Documentation evolves together with the code.
+* Git history should reflect the engineering process.
 
 ---
 
 # Project Status
 
-> 🚧 **Work in Progress**
+> 🚧 **In Development**
 
-This repository is being developed chapter by chapter, following a structured firmware engineering process similar to that used in professional embedded software teams.
+Current milestone:
+
+* ✅ Project initialization
+* ✅ Repository organization
+* ✅ Functional requirements
+* ✅ Software architecture
+* ⏳ Software design
+* ⏳ Driver implementation
+* ⏳ FreeRTOS integration
+* ⏳ Application development
+* ⏳ Testing
+* ⏳ Documentation
 
 ---
 
 # License
 
-This project will be released under the **MIT License** unless otherwise specified.
+This project is released under the **MIT License**.
