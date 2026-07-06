@@ -1,0 +1,32 @@
+# Build artifacts
+build/
+out/
+bin/
+
+# Object files
+*.o
+*.obj
+*.elf
+*.map
+*.hex
+*.bin
+
+# Dependency files
+*.d
+
+# Debug files
+*.lst
+
+# VS Code
+.vscode/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+
+# Backup files
+*~
+*.swp
+
+# Python
+__pycache__/
