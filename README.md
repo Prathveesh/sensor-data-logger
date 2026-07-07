@@ -41,8 +41,8 @@ The primary objectives of this project are to:
 
 | Component            | Details            |
 | -------------------- | ------------------ |
-| Development Board    | STM32F3 Discovery  |
-| MCU                  | STM32F303VCT6      |
+| Development Board    | STM32F407G-DISC1   |
+| MCU                  | STM32F407VGT6      |
 | Core                 | ARM Cortex-M4F     |
 | Programming Language | Embedded C (C99)   |
 | RTOS                 | FreeRTOS           |

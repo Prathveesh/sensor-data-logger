@@ -170,7 +170,7 @@ The firmware uses a lightweight three-layer architecture.
 | CMSIS                                                |
 | Startup Files                                        |
 | Linker Script                                        |
-| STM32F303 Registers                                  |
+| STM32F407 Registers                                  |
 +------------------------------------------------------+
 ```
 
@@ -227,7 +227,7 @@ Components include:
 * Startup files
 * Linker script
 
-This layer provides direct access to the STM32F303 hardware.
+This layer provides direct access to the STM32F407G hardware.
 
 ---
 

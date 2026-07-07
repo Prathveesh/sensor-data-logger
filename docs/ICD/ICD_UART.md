@@ -19,7 +19,7 @@
 
 This document defines the public software interface for the UART Driver.
 
-The UART Driver provides a hardware abstraction for the STM32F303 UART peripheral and is responsible for all UART-related register access.
+The UART Driver provides a hardware abstraction for the STM32F407 UART peripheral and is responsible for all UART-related register access.
 
 This document is the authoritative specification for the UART Driver interface. The corresponding `uart.h` file shall be derived directly from this document.
 
@@ -63,7 +63,7 @@ Not included in this release:
 
 ## Hardware
 
-* STM32F303VCT6 MCU
+* STM32F407VGT6 MCU
 * USART peripheral
 
 ## Software
