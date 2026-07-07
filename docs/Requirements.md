@@ -2,9 +2,9 @@
 
 **Project:** FreeRTOS Sensor Data Logger
 
-**Target MCU:** STM32F303VCT6
+**Target MCU:** STM32F407VGT6
 
-**Development Board:** STM32F3 Discovery
+**Development Board:** STM32F407G-DISC1
 
 **Document Version:** 0.1
 
@@ -26,7 +26,7 @@ This document intentionally defines only the requirements for the first release 
 
 The firmware shall:
 
-* Initialize the STM32F3 Discovery board.
+* Initialize the STM32F407G-DISC1 board.
 * Initialize the FreeRTOS kernel.
 * Periodically acquire sensor data.
 * Log sensor data over UART.

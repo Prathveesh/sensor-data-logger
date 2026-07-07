@@ -1,6 +1,6 @@
 # FreeRTOS Sensor Data Logger
 
-A production-style embedded firmware project built from scratch using **Embedded C**, **FreeRTOS**, and the **STM32F3 Discovery (STM32F303VCT6)** development board.
+A production-style embedded firmware project built from scratch using **Embedded C**, **FreeRTOS**, and the **STM32F407G-DISC1 (STM32F407VGT6)** development board.
 
 This repository documents the complete firmware development process—from requirements analysis and software architecture to implementation, testing, debugging, and documentation—following practices commonly used in professional embedded software teams.
 
@@ -76,7 +76,7 @@ The firmware follows a lightweight three-layer architecture.
 | CMSIS                                                |
 | Startup Files                                        |
 | Linker Script                                        |
-| STM32F303 Registers                                  |
+| STM32F407 Registers                                  |
 +------------------------------------------------------+
 ```
 
@@ -183,22 +183,100 @@ This project follows a few simple engineering principles throughout its developm
 
 ---
 
+# Build Environment Setup
+
+### Supported Host OS
+* Ubuntu
+* WSL2 Ubuntu
+* Native Linux
+
+*(Note: Windows users are recommended to use WSL2 for the best experience).*
+
+### Required Packages
+To compile and flash the firmware, you will need to install the following packages:
+
+```bash
+sudo apt update
+
+sudo apt install \
+    build-essential \
+    make \
+    gcc-arm-none-eabi \
+    gdb-multiarch \
+    openocd \
+    git
+```
+
+### Verify Installation
+You can verify your installation using the following commands:
+
+```bash
+arm-none-eabi-gcc --version
+arm-none-eabi-gdb --version
+openocd --version
+make --version
+```
+
+### Build Instructions
+To build the project, run:
+
+```bash
+make
+```
+
+**Expected outputs:**
+* `firmware.elf`
+* `firmware.hex`
+* `firmware.bin`
+
+### Flash Instructions
+To flash the firmware to the board using OpenOCD:
+
+```bash
+make flash
+```
+
+### Debug Instructions
+To start the OpenOCD GDB server for debugging, run:
+
+```bash
+make debug
+```
+
+Debugging is performed using:
+* ST-Link
+* OpenOCD
+* GDB
+* VS Code Cortex-Debug extension
+
+---
+
 # Project Status
 
 > 🚧 **In Development**
 
-Current milestone:
+### Completed Milestones
+* ✅ Project Initialization
+* ✅ Requirements Document
+* ✅ SWAD Document
+* ✅ SDD Document
+* ✅ ICD Documents
+* ✅ UART Driver Implementation
+* ✅ CMSIS Integration
+* ✅ GNU Make Build System
+* ✅ Startup Code Integration
+* ✅ Linker Script Integration
+* ✅ Firmware Build Generation
 
-* ✅ Project initialization
-* ✅ Repository organization
-* ✅ Functional requirements
-* ✅ Software architecture
-* ⏳ Software design
-* ⏳ Driver implementation
-* ⏳ FreeRTOS integration
-* ⏳ Application development
-* ⏳ Testing
-* ⏳ Documentation
+### In-Progress
+* ⏳ UART Hardware Bring-up
+
+### Future Milestones
+* ⏳ Logger Module
+* ⏳ CLI Module
+* ⏳ Sensor Manager
+* ⏳ FreeRTOS Integration
+* ⏳ Application Layer
 
 ---
 
