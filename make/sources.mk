@@ -23,7 +23,7 @@ C_DEFS = \
 C_INCLUDES = \
   -Idrivers/uart \
   -Iconfig/cmsis/device/Include \
-  -Iconfig/cmsis/core/Include
+  -Iconfig/cmsis/core/CMSIS/Core/Include
 
 # --------------------------------------------------------------------------
 # C Source Files

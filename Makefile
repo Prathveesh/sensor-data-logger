@@ -23,7 +23,7 @@
 PROJECT = firmware
 
 # Build output directory
-BUILD_DIR = build
+BUILD_DIR = out
 
 # Include build configuration
 include make/sources.mk
