@@ -6,12 +6,16 @@
  * This file implements the UART Driver using direct register access through
  * CMSIS. The driver provides blocking transmit and receive functionality
  * for USART2 on the STM32F407 Discovery board.
+ *
+ * @note This file references STM32F407VGT6 (STM32F407G-DISC1).
  ******************************************************************************/
 
 /* Includes */
 
 #include "uart.h"
 #include "stm32f407xx.h"
+
+#include <stddef.h>
 
 /* Private Macros */
 
@@ -34,28 +38,25 @@
 /* GPIO Output Speed: High (0b10) */
 #define UART_GPIO_SPEED_HIGH (2U)
 
+/* GPIO Output Type: Push-Pull (0b0) */
+#define UART_GPIO_OTYPE_PP (0U)
+
 /* GPIO Pull-Up (0b01) */
 #define UART_GPIO_PULL_UP (1U)
+
+/* GPIO Register Field Masks */
+#define UART_GPIO_MODE_MASK (0x3U)
+#define UART_GPIO_AF_MASK (0xFU)
 
 /* UART Configuration */
 #define UART_BAUDRATE (115200U)
 
 /*
- * NOTE:
- *
- * For Release v0.1.0 we assume the APB1 peripheral clock driving USART2
- * is configured to 16 MHz (HSI default, no PLL, APB1 prescaler = 1).
- *
- * BRR = PCLK / BaudRate
- *
- * 16000000 / 115200 = 138.89 ≈ 139 (0x8B)
- *
- * Mantissa = 8, Fraction = 11 → BRR = (8 << 4) | 11 = 0x8B
- *
- * This value will later be calculated automatically once the Clock Driver
- * is introduced into the project.
+ * Assumes HSI (16 MHz) with no PLL and APB1 prescaler = 1.
+ * This macro will be replaced once the Clock Driver is introduced.
  */
-#define UART_BRR_VALUE (0x8BU)
+#define UART_PERIPHERAL_CLOCK_HZ (16000000U)
+#define UART_BRR_VALUE (UART_PERIPHERAL_CLOCK_HZ / UART_BAUDRATE)
 
 /* Private Function Prototypes */
 
@@ -69,17 +70,6 @@ static UART_Status_t UART_WriteByte(uint8_t data);
 
 /* Public Function Definitions */
 
-/**
- * @brief Initialize the UART peripheral.
- *
- * @details
- * Initializes the UART peripheral using the project-defined configuration.
- * This function shall be called once during system initialization before any
- * UART transmit or receive operation is performed.
- *
- * @retval UART_STATUS_OK     UART initialized successfully.
- * @retval UART_STATUS_ERROR  UART initialization failed.
- */
 UART_Status_t UART_Init(void) {
   UART_EnablePeripheralClock();
 
@@ -90,25 +80,10 @@ UART_Status_t UART_Init(void) {
   return UART_STATUS_OK;
 }
 
-/**
- * @brief Transmit a buffer over UART.
- *
- * @details
- * Transmits the specified number of bytes using blocking mode.
- * The function returns only after all bytes have been transmitted or an
- * error occurs.
- *
- * @param[in]  buffer  Pointer to the transmit buffer.
- * @param[in]  length  Number of bytes to transmit.
- *
- * @retval UART_STATUS_OK                 Transmission completed successfully.
- * @retval UART_STATUS_ERROR              Transmission failed.
- * @retval UART_STATUS_INVALID_PARAMETER  Invalid input arguments.
- */
 UART_Status_t UART_Write(const uint8_t *buffer, uint32_t length) {
   UART_Status_t status = UART_STATUS_OK;
 
-  if ((buffer == (void *)0) || (length == 0U)) {
+  if ((buffer == NULL) || (length == 0U)) {
     return UART_STATUS_INVALID_PARAMETER;
   }
 
@@ -123,22 +98,8 @@ UART_Status_t UART_Write(const uint8_t *buffer, uint32_t length) {
   return UART_STATUS_OK;
 }
 
-/**
- * @brief Receive a single byte over UART.
- *
- * @details
- * Receives one byte using blocking mode and stores it in the user-provided
- * memory location.
- *
- * @param[out] data  Pointer to the memory location where the received byte
- *                   shall be stored.
- *
- * @retval UART_STATUS_OK                 Byte received successfully.
- * @retval UART_STATUS_ERROR              Receive operation failed.
- * @retval UART_STATUS_INVALID_PARAMETER  Invalid input arguments.
- */
 UART_Status_t UART_ReadByte(uint8_t *data) {
-  if (data == (void *)0) {
+  if (data == NULL) {
     return UART_STATUS_INVALID_PARAMETER;
   }
 
@@ -163,6 +124,10 @@ static void UART_EnablePeripheralClock(void) {
 
   /* Enable USART2 clock (APB1) */
   RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+
+  /* Read-back to ensure clocks are active before peripheral access */
+  (void)RCC->AHB1ENR;
+  (void)RCC->APB1ENR;
 }
 
 /**
@@ -170,35 +135,43 @@ static void UART_EnablePeripheralClock(void) {
  */
 static void UART_ConfigureGPIO(void) {
   /* Configure PA2 (TX) as Alternate Function */
-  UART_GPIO_PORT->MODER &= ~(3U << (UART_TX_PIN * 2U));
+  UART_GPIO_PORT->MODER &= ~(UART_GPIO_MODE_MASK << (UART_TX_PIN * 2U));
   UART_GPIO_PORT->MODER |= (UART_GPIO_MODE_AF << (UART_TX_PIN * 2U));
 
   /* Configure PA3 (RX) as Alternate Function */
-  UART_GPIO_PORT->MODER &= ~(3U << (UART_RX_PIN * 2U));
+  UART_GPIO_PORT->MODER &= ~(UART_GPIO_MODE_MASK << (UART_RX_PIN * 2U));
   UART_GPIO_PORT->MODER |= (UART_GPIO_MODE_AF << (UART_RX_PIN * 2U));
 
+  /* Set output type to Push-Pull for TX pin */
+  UART_GPIO_PORT->OTYPER &= ~(1U << UART_TX_PIN);
+  UART_GPIO_PORT->OTYPER |= (UART_GPIO_OTYPE_PP << UART_TX_PIN);
+
+  /* Set output type to Push-Pull for RX pin */
+  UART_GPIO_PORT->OTYPER &= ~(1U << UART_RX_PIN);
+  UART_GPIO_PORT->OTYPER |= (UART_GPIO_OTYPE_PP << UART_RX_PIN);
+
   /* Set output speed to High for TX pin */
-  UART_GPIO_PORT->OSPEEDR &= ~(3U << (UART_TX_PIN * 2U));
+  UART_GPIO_PORT->OSPEEDR &= ~(UART_GPIO_MODE_MASK << (UART_TX_PIN * 2U));
   UART_GPIO_PORT->OSPEEDR |= (UART_GPIO_SPEED_HIGH << (UART_TX_PIN * 2U));
 
   /* Set output speed to High for RX pin */
-  UART_GPIO_PORT->OSPEEDR &= ~(3U << (UART_RX_PIN * 2U));
+  UART_GPIO_PORT->OSPEEDR &= ~(UART_GPIO_MODE_MASK << (UART_RX_PIN * 2U));
   UART_GPIO_PORT->OSPEEDR |= (UART_GPIO_SPEED_HIGH << (UART_RX_PIN * 2U));
 
   /* Set pull-up for TX pin */
-  UART_GPIO_PORT->PUPDR &= ~(3U << (UART_TX_PIN * 2U));
+  UART_GPIO_PORT->PUPDR &= ~(UART_GPIO_MODE_MASK << (UART_TX_PIN * 2U));
   UART_GPIO_PORT->PUPDR |= (UART_GPIO_PULL_UP << (UART_TX_PIN * 2U));
 
   /* Set pull-up for RX pin */
-  UART_GPIO_PORT->PUPDR &= ~(3U << (UART_RX_PIN * 2U));
+  UART_GPIO_PORT->PUPDR &= ~(UART_GPIO_MODE_MASK << (UART_RX_PIN * 2U));
   UART_GPIO_PORT->PUPDR |= (UART_GPIO_PULL_UP << (UART_RX_PIN * 2U));
 
-  /* Select AF7 (USART2) for PA2 via AFRL (pins 0–7 use AFR[0]) */
-  UART_GPIO_PORT->AFR[0] &= ~(0xFU << (UART_TX_PIN * 4U));
+  /* Select AF7 (USART2) for PA2 via AFRL (pins 0-7 use AFR[0]) */
+  UART_GPIO_PORT->AFR[0] &= ~(UART_GPIO_AF_MASK << (UART_TX_PIN * 4U));
   UART_GPIO_PORT->AFR[0] |= (UART_GPIO_AF << (UART_TX_PIN * 4U));
 
   /* Select AF7 (USART2) for PA3 via AFRL */
-  UART_GPIO_PORT->AFR[0] &= ~(0xFU << (UART_RX_PIN * 4U));
+  UART_GPIO_PORT->AFR[0] &= ~(UART_GPIO_AF_MASK << (UART_RX_PIN * 4U));
   UART_GPIO_PORT->AFR[0] |= (UART_GPIO_AF << (UART_RX_PIN * 4U));
 }
 

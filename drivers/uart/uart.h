@@ -3,7 +3,7 @@
  * @brief   Public interface for the UART Driver.
  *
  * @details
- * The UART Driver provides a hardware abstraction for the STM32F303 UART
+ * The UART Driver provides a hardware abstraction for the STM32F407 UART
  * peripheral. It exposes only the interfaces required by higher software
  * layers while hiding all hardware-specific implementation details.
  ******************************************************************************/
