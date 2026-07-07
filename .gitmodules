@@ -1,0 +1,6 @@
+[submodule "config/cmsis/device"]
+	path = config/cmsis/device
+	url = https://github.com/STMicroelectronics/cmsis_device_f4.git
+[submodule "config/cmsis/core"]
+	path = config/cmsis/core
+	url = https://github.com/STMicroelectronics/cmsis_core.git
