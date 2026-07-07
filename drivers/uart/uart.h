@@ -15,10 +15,6 @@
 
 #include <stdint.h>
 
-/* Public Macros */
-
-/* No public macros defined for Release v0.1.0 */
-
 /* Public Enumerations */
 
 /**
@@ -30,14 +26,6 @@ typedef enum {
   UART_STATUS_INVALID_PARAMETER /**< Invalid function parameter. */
 
 } UART_Status_t;
-
-/* Public Structures */
-
-/* No public structures defined for Release v0.1.0 */
-
-/* Public Typedefs */
-
-/* No public typedefs defined for Release v0.1.0 */
 
 /* Public Function Prototypes */
 
